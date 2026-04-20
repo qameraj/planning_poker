@@ -3,10 +3,10 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Card from '@/components/ui/card';
-import Button from '@/components/ui/button';
-import Input from '@/components/ui/input';
-import ThemeToggle from '@/components/ui/theme-toggle';
+import Card from '@/app/ui/Card';           // Added 'app/' and capitalized 'Card'
+import Button from '@/app/ui/Button';       // Capitalized 'Button'
+import Input from '@/app/ui/Input';         // Capitalized 'Input'
+import ThemeToggle from '@/app/ui/ThemeToggle'; // Capitalized and removed hyphen
 import { useSessionStore } from '@/store/session-store';
 import { VotingSystem } from '@/lib/types';
 
