@@ -1,5 +1,6 @@
 import { create } from 'zustand';
-import { Session, Participant, Vote, Round, VotingSystem } from '@/lib/types';
+// Corrected path to match your folder structure
+import { Session, Participant, Vote, Round, VotingSystem } from '@/app/lib/types';
 
 interface SessionState {
   session: Session | null;
@@ -15,7 +16,6 @@ interface SessionState {
   leaveSession: () => void;
 }
 
-// Mock data generator
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -57,7 +57,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       isOnline: true,
     };
 
-    // Mock: Create a new session with some existing participants
     const mockParticipants: Participant[] = [
       { id: generateId(), name: 'Alice Johnson', isSpectator: false, isOnline: true },
       { id: generateId(), name: 'Bob Smith', isSpectator: false, isOnline: true },
@@ -107,18 +106,16 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
     let updatedVotes = [...session.currentRound.votes];
 
+    const newVote: Vote = {
+      participantId: currentUser.id,
+      value,
+      timestamp: Date.now(),
+    };
+
     if (existingVoteIndex >= 0) {
-      updatedVotes[existingVoteIndex] = {
-        participantId: currentUser.id,
-        value,
-        timestamp: Date.now(),
-      };
+      updatedVotes[existingVoteIndex] = newVote;
     } else {
-      updatedVotes.push({
-        participantId: currentUser.id,
-        value,
-        timestamp: Date.now(),
-      });
+      updatedVotes.push(newVote);
     }
 
     set({
@@ -157,7 +154,8 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({
       session: {
         ...session,
-        currentRound: undefined,
+        // In TS, if currentRound is optional, you should use delete or set to undefined
+        currentRound: undefined, 
         rounds: [completedRound, ...session.rounds],
       },
     });
