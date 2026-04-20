@@ -3,12 +3,16 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
-import Card from '@/app/ui/Card';           // Added 'app/' and capitalized 'Card'
-import Button from '@/app/ui/Button';       // Capitalized 'Button'
-import Input from '@/app/ui/Input';         // Capitalized 'Input'
-import ThemeToggle from '@/app/ui/ThemeToggle'; // Capitalized and removed hyphen
-import { useSessionStore } from '@/store/session-store';
-import { VotingSystem } from '@/lib/types';
+
+// UI Components - Matching your folder structure and PascalCase naming
+import Card from '@/app/ui/Card';           
+import Button from '@/app/ui/Button';       
+import Input from '@/app/ui/Input';         
+import ThemeToggle from '@/app/ui/ThemeToggle'; 
+
+// Store & Types - Fixed to match @/app/... and useSessionStore naming
+import { useSessionStore } from '@/app/store/useSessionStore';
+import { VotingSystem } from '@/app/lib/types';
 
 export default function HomePage() {
   const router = useRouter();
@@ -159,7 +163,7 @@ export default function HomePage() {
                       label="Session Name"
                       placeholder="Sprint 23 Planning"
                       value={sessionName}
-                      onChange={(e) => setSessionName(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSessionName(e.target.value)}
                     />
                     
                     <div>
@@ -191,7 +195,7 @@ export default function HomePage() {
                       label="Session ID"
                       placeholder="Enter session ID"
                       value={sessionId}
-                      onChange={(e) => setSessionId(e.target.value)}
+                      onChange={(e: React.ChangeEvent<HTMLInputElement>) => setSessionId(e.target.value)}
                     />
                     
                     <div className="flex items-center gap-2">
@@ -213,7 +217,7 @@ export default function HomePage() {
                   label="Your Name"
                   placeholder="John Doe"
                   value={userName}
-                  onChange={(e) => setUserName(e.target.value)}
+                  onChange={(e: React.ChangeEvent<HTMLInputElement>) => setUserName(e.target.value)}
                 />
 
                 <Button
