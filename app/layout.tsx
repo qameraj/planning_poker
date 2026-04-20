@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ThemeProvider } from "@/components/theme-provider";
+// Path updated to match your folder: app/component/providers/ThemeProvider.tsx
+import { ThemeProvider } from "@/app/component/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
