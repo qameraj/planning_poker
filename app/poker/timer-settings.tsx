@@ -20,7 +20,7 @@ const PRESET_DURATIONS = [
 ];
 
 export default function TimerSettings({ isOpen, onClose, onStart }: TimerSettingsProps) {
-  const [selectedDuration, setSelectedDuration] = useState(180); // 3 minutes default
+  const [selectedDuration, setSelectedDuration] = useState(180);
   const [autoReveal, setAutoReveal] = useState(true);
 
   const handleStart = () => {
