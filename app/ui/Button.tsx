@@ -2,8 +2,7 @@
 
 import { ButtonHTMLAttributes, forwardRef } from 'react';
 import { motion } from 'framer-motion';
-// Changed from '@/lib/utils' to '@/app/lib/utils'
-import { cn } from '@/app/lib/utils';
+import { cn } from '@/lib/utils';
 
 export interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: 'primary' | 'secondary' | 'ghost' | 'danger';
