@@ -10,13 +10,14 @@ import Button from '@/app/ui/Button';
 import Input from '@/app/ui/Input';
 
 // Poker Components
-import VotingCard from '@/components/poker/voting-card';
-import ParticipantCard from '@/components/poker/participant-card';
-import Timer from '@/components/poker/timer';
-import TimerSettings from '@/components/poker/timer-settings';
+// Poker Components
+import VotingCard from '@/app/poker/VotingCard';
+import ParticipantCard from '@/app/poker/ParticipantCard';
+import Timer from '@/app/poker/Timer';
+import TimerSettings from '@/app/poker/TimerSettings';
 
 // Session Components
-import SessionHeader from '@/components/session/SessionHeader';
+import SessionHeader from '@/app/session/SessionHeader';
 
 // Store & Utils
 import { useSessionStore } from '@/app/store/useSessionStore';
