@@ -1,45 +1,39 @@
-import type { Config } from "tailwindcss";
-
-export default {
-  content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
-  ],
+/** @type {import('tailwindcss').Config} */
+module.exports = {
   darkMode: 'class',
+  content: [
+    './app/**/*.{js,ts,jsx,tsx}',
+    './components/**/*.{js,ts,jsx,tsx}',
+  ],
   theme: {
     extend: {
       colors: {
-        // Light Mode
-        light: {
-          bg: '#F5F5DC',
-          'bg-secondary': '#FAF9F6',
-          card: '#FFFFFF',
-          'text-primary': '#2F2F2F',
-          'text-secondary': '#6B6B6B',
-          border: '#E5E5E5',
-          accent: '#A3A380',
-        },
-        // Dark Mode
-        dark: {
-          bg: '#1E1E1E',
-          card: '#2A2A2A',
-          'text-primary': '#F5F5DC',
-          'text-secondary': '#CFCFCF',
-          border: '#3A3A3A',
-          accent: '#D6D2B0',
-        },
+        // 🌞 LIGHT MODE
+        'light-bg': '#F5F5DC',
+        'light-secondary': '#FAF9F6',
+        'light-card': '#FFFFFF',
+        'light-text-primary': '#2F2F2F',
+        'light-text-secondary': '#6B6B6B',
+        'light-border': '#E5E5E5',
+        'light-accent': '#A3A380',
+
+        // 🌙 DARK MODE
+        'dark-bg': '#1E1E1E',
+        'dark-card': '#2A2A2A',
+        'dark-text-primary': '#F5F5DC',
+        'dark-text-secondary': '#CFCFCF',
+        'dark-border': '#3A3A3A',
+        'dark-accent': '#D6D2B0',
       },
+
       boxShadow: {
-        'soft': '0 2px 8px rgba(0, 0, 0, 0.06)',
-        'soft-md': '0 4px 12px rgba(0, 0, 0, 0.08)',
-        'soft-lg': '0 8px 24px rgba(0, 0, 0, 0.1)',
+        soft: '0 4px 12px rgba(0,0,0,0.05)',
       },
+
       borderRadius: {
         '2xl': '1rem',
-        '3xl': '1.5rem',
       },
     },
   },
   plugins: [],
-} satisfies Config;
+};
