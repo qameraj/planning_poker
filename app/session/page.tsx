@@ -10,7 +10,6 @@ import Button from '@/app/ui/Button';
 import Input from '@/app/ui/Input';
 
 // Poker Components
-// Poker Components
 import VotingCard from '@/app/poker/VotingCard';
 import ParticipantCard from '@/app/poker/ParticipantCard';
 import Timer from '@/app/poker/Timer';
