@@ -23,6 +23,9 @@ export interface Round {
   isRevealed: boolean;
   startedAt: number;
   revealedAt?: number;
+  timerDuration?: number;
+  timerAutoReveal?: boolean;
+  timerActive?: boolean;
 }
 
 export interface Session {
