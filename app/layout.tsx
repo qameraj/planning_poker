@@ -2,8 +2,8 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-// ✅ FIXED IMPORT
-import { ThemeProvider } from "@/components/providers/ThemeProvider";
+// ✅ FIXED IMPORT: Added /app/ to the path
+import { ThemeProvider } from "@/app/components/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
