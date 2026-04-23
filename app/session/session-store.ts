@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
-// ✅ FIXED PATH
-import { Session, Participant, Vote, Round, VotingSystem } from '@/app/lib/types';
+// ✅ FIXED: Removed '/app' because lib is now in the root directory
+import { Session, Participant, Vote, Round, VotingSystem } from '@/lib/types';
 
 interface SessionState {
   session: Session | null;

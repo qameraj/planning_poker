@@ -1,7 +1,11 @@
 'use client';
 
 import PokerCard from './PokerCard';
-import { getDeckValues } from '@/lib/decks';
+
+// ✅ FIXED: Changed 'decks' to 'deck' to match your actual filename
+import { getDeckValues } from '@/lib/deck';
+
+// ✅ FIXED: Pointing to the root lib folder
 import { VotingSystem } from '@/lib/types';
 
 interface PokerTableProps {

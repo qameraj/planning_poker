@@ -2,7 +2,7 @@
 
 import { HTMLAttributes } from 'react';
 
-// ✅ FIXED PATH
+// ✅ FIXED: Relative path from app/ui/ to the root lib folder
 import { cn } from '../../lib/utils';
 
 export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {

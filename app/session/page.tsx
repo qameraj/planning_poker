@@ -4,23 +4,25 @@ import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 
+// ✅ FIXED: Using relative paths (going up from 'session' to 'app')
 // UI Components
-import Card from '@/app/ui/Card';
-import Button from '@/app/ui/Button';
-import Input from '@/app/ui/Input';
+import Card from '../ui/Card';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
 
 // Poker Components
-import VotingCard from '@/app/poker/VotingCard';
-import ParticipantCard from '@/app/poker/ParticipantCard';
-import Timer from '@/app/poker/Timer';
-import TimerSettings from '@/app/poker/TimerSettings';
+import VotingCard from '../poker/VotingCard';
+import ParticipantCard from '../poker/ParticipantCard';
+import Timer from '../poker/Timer';
+import TimerSettings from '../poker/TimerSettings';
 
-// Session Components
-import SessionHeader from '@/app/session/SessionHeader';
+// Session Components (Same folder, so use ./)
+import SessionHeader from './SessionHeader';
 
 // Store & Utils
-import { useSessionStore } from '@/app/store/useSessionStore';
-import { getDeckValues } from '@/lib/decks';
+// ✅ FIXED: Removed '/app' from lib and changed 'decks' to 'deck'
+import { useSessionStore } from '../store/useSessionStore';
+import { getDeckValues } from '@/lib/deck';
 
 export default function SessionPage() {
   const router = useRouter();

@@ -2,6 +2,8 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+
+// ✅ FIXED: Ensuring the path points to the root lib folder
 import { cn } from '@/lib/utils';
 
 export interface TimerProps {
@@ -24,7 +26,8 @@ export default function Timer({
   const [timeRemaining, setTimeRemaining] = useState(duration);
   const [isPaused, setIsPaused] = useState(false);
 
-  const percentage = (timeRemaining / duration) * 100;
+  // ✅ SAFE CALCULATION: Prevent NaN if duration is 0
+  const percentage = duration > 0 ? (timeRemaining / duration) * 100 : 0;
   const isLowTime = timeRemaining <= 10 && timeRemaining > 0;
   const minutes = Math.floor(timeRemaining / 60);
   const seconds = timeRemaining % 60;

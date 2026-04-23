@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-
-// ✅ FIXED: Changed path to look inside the current 'app' folder 
-// ✅ FIXED: Using direct relative path to bypass alias configuration issues
 import ThemeProvider from "./components/providers/ThemeProvider";
 
 const inter = Inter({

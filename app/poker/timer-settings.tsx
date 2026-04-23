@@ -2,9 +2,13 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import Button from '@/app/ui/Button';
-import Modal from '@/app/ui/Modal';
-import { cn } from '@lib/utils';
+
+// ✅ FIXED: Using relative paths to find the 'ui' folder inside 'app'
+import Button from '../ui/Button';
+import Modal from '../ui/Modal';
+
+// ✅ FIXED: Corrected the prefix from '@lib' to '@/lib' (pointing to project root)
+import { cn } from '@/lib/utils';
 
 export interface TimerSettingsProps {
   isOpen: boolean;

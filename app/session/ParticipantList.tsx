@@ -2,11 +2,13 @@
 
 import { motion } from 'framer-motion';
 
-// ✅ FIXED IMPORTS
-import Avatar from '@/app/ui/Avatar';
-import Card from '@/app/ui/Card';
-import { Participant, Vote } from '@/app/lib/types';
-import { cn } from '@/app/lib/utils';
+// ✅ FIXED: Using relative paths to find the 'ui' folder inside 'app'
+import Avatar from '../ui/Avatar';
+import Card from '../ui/Card';
+
+// ✅ FIXED: Removed '/app' because 'lib' is now in the root
+import { Participant, Vote } from '@/lib/types';
+import { cn } from '@/lib/utils';
 
 interface ParticipantCardProps {
   participant: Participant;

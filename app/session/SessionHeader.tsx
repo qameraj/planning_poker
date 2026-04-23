@@ -1,7 +1,8 @@
 'use client';
 
-import Button from '@/app/ui/Button';
-import ThemeToggle from '@/app/ui/ThemeToggle';
+// ✅ FIXED: Using relative paths to find the 'ui' folder inside 'app'
+import Button from '../ui/Button';
+import ThemeToggle from '../ui/ThemeToggle';
 
 interface SessionHeaderProps {
   sessionName: string;

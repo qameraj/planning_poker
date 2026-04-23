@@ -2,11 +2,11 @@
 
 import { motion } from 'framer-motion';
 
-import { cn } from '@/lib/utils';
-import { getCardColor } from '@/lib/deck';
+// ✅ FIXED: Using relative paths to find the root 'lib' folder from 'app/poker'
+import { cn } from '../../lib/utils';
+import { getCardColor } from '../../lib/deck';
 
 interface VotingCardProps {
-  
   value: string;
   isSelected?: boolean;
   isRevealed?: boolean;
@@ -29,6 +29,7 @@ export default function VotingCard({
     lg: 'w-20 h-28 text-3xl',
   };
 
+  // Get color logic from our fixed lib file
   const cardColor = getCardColor(value);
 
   return (
@@ -47,12 +48,15 @@ export default function VotingCard({
       whileTap={!disabled ? { scale: 0.95 } : {}}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
     >
+      {/* Background color layer */}
       <div className={cn('absolute inset-0 rounded-xl', cardColor)} />
 
+      {/* Value text */}
       <div className="relative z-10 flex items-center justify-center h-full">
         {value}
       </div>
 
+      {/* Selection checkmark */}
       {isSelected && (
         <motion.div
           initial={{ scale: 0 }}
