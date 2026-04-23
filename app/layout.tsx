@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 
-// ✅ FIXED (relative path — no alias issues)
-import { ThemeProvider } from "../components/providers/ThemeProvider";
+// ✅ FIXED: Removed curly braces because ThemeProvider is a default export
+// ✅ FIXED: Using absolute alias path to avoid "Module not found"
+import ThemeProvider from "@/components/providers/ThemeProvider";
 
 const inter = Inter({
   subsets: ["latin"],
