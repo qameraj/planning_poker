@@ -20,7 +20,7 @@ import SessionHeader from '@/app/session/SessionHeader';
 
 // Store & Utils
 import { useSessionStore } from '@/app/store/useSessionStore';
-import { getDeckValues } from '@/app/lib/decks';
+import { getDeckValues } from '@/lib/decks';
 
 export default function SessionPage() {
   const router = useRouter();

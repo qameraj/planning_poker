@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { cn } from '@/app/lib/utils';
+import { cn } from '@/lib/utils';
 
 export interface TimerProps {
   duration: number; // in seconds

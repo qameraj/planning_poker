@@ -1,8 +1,8 @@
 'use client';
 
 import PokerCard from './PokerCard';
-import { getDeckValues } from '@/app/lib/decks';
-import { VotingSystem } from '@/app/lib/types';
+import { getDeckValues } from '@/lib/decks';
+import { VotingSystem } from '@/lib/types';
 
 interface PokerTableProps {
   votingSystem: VotingSystem;

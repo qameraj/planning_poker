@@ -2,11 +2,11 @@
 
 import { motion } from 'framer-motion';
 
-// ✅ FIXED IMPORTS
-import { cn } from '@/app/lib/utils';
-import { getCardColor } from '@/app/lib/decks';
+import { cn } from '@/lib/utils';
+import { getCardColor } from '@/lib/deck';
 
 interface VotingCardProps {
+  
   value: string;
   isSelected?: boolean;
   isRevealed?: boolean;
