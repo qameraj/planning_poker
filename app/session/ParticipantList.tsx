@@ -4,8 +4,7 @@ import { motion } from 'framer-motion';
 import Avatar from '@/components/ui/avatar';
 import Card from '@/components/ui/card';
 import { Participant, Vote } from '@/lib/types';
-import { cn } from '@/lib/utils';
-
+import { cn } from '../lib/utils';
 interface ParticipantCardProps {
   participant: Participant;
   vote?: Vote;

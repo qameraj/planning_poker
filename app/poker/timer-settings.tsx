@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import Button from '@/components/ui/button';
 import Modal from '@/components/ui/modal';
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 export interface TimerSettingsProps {
   isOpen: boolean;

@@ -1,8 +1,8 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import { getCardColor } from '@/lib/decks';
+import { cn } from '../lib/utils';
+import { getCardColor } from '../lib/decks';
 
 interface VotingCardProps {
   value: string;

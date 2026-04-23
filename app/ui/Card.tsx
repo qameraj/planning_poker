@@ -3,7 +3,7 @@
 import { HTMLAttributes, forwardRef } from 'react';
 import { motion } from 'framer-motion';
 // Change from '@/lib/utils' to '@/app/lib/utils'
-import { cn } from '@/lib/utils';
+import { cn } from '../lib/utils';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
