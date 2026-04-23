@@ -35,7 +35,7 @@ export default function SessionHeader({
                 {sessionName}
               </h1>
               <p className="text-sm text-light-text-secondary dark:text-dark-text-secondary">
-                Session ID: {sessionId}
+              Session ID: {sessionId.slice(0, 6).toUpperCase()}
               </p>
             </div>
           </div>
