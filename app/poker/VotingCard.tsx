@@ -5,7 +5,7 @@ import { motion } from 'framer-motion';
 // ✅ FIXED: Using relative paths to find the root 'lib' folder from 'app/poker'
 // ✅ FIXED: Using absolute alias to point to the root lib folder
 import { cn } from '@/lib/utils';
-import { getCardColor } from '@/lib/deck';
+import { getCardColor } from '@/lib/decks';
 
 interface VotingCardProps {
   value: string;
