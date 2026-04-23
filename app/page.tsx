@@ -4,20 +4,20 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-// ✅ FIXED IMPORTS (no @/app, no alias issues)
-import Card from './ui/Card';           
-import Button from './ui/Button';       
-import Input from './ui/Input';         
-import ThemeToggle from './ui/ThemeToggle'; 
+// UI Components
+import Card from './ui/Card';
+import Button from './ui/Button';
+import Input from './ui/Input';
+import ThemeToggle from './ui/ThemeToggle';
 
-// ✅ FIXED PATHS
+// Store & Types
 import { useSessionStore } from './store/useSessionStore';
 import { VotingSystem } from '../lib/types';
 
 export default function HomePage() {
   const router = useRouter();
   const { createSession, joinSession } = useSessionStore();
-  
+
   const [mode, setMode] = useState<'create' | 'join' | null>(null);
   const [sessionName, setSessionName] = useState('');
   const [userName, setUserName] = useState('');
@@ -34,9 +34,7 @@ export default function HomePage() {
     try {
       setLoading(true);
       setError(null);
-
       await createSession(sessionName, userName, votingSystem);
-
       router.push('/session');
     } catch (err: any) {
       setError(err.message || 'Failed to create session');
@@ -51,9 +49,7 @@ export default function HomePage() {
     try {
       setLoading(true);
       setError(null);
-
       await joinSession(sessionId, userName, isSpectator);
-
       router.push('/session');
     } catch (err: any) {
       setError(err.message || 'Failed to join session');
@@ -64,11 +60,13 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg transition-colors duration-300">
-      
+
       {/* Header */}
       <header className="border-b border-light-border dark:border-dark-border">
         <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-xl font-bold">Planning Poker</h1>
+          <h1 className="text-2xl font-bold text-light-text-primary dark:text-dark-text-primary">
+            Planning Poker
+          </h1>
           <ThemeToggle />
         </div>
       </header>
@@ -77,18 +75,29 @@ export default function HomePage() {
 
         {!mode ? (
           <div className="grid md:grid-cols-2 gap-6">
-            <Card hover onClick={() => setMode('create')} className="p-8 cursor-pointer">
+            <Card
+              hover
+              onClick={() => setMode('create')}
+              className="p-8 cursor-pointer text-center text-lg font-semibold"
+            >
               Create Session
             </Card>
 
-            <Card hover onClick={() => setMode('join')} className="p-8 cursor-pointer">
+            <Card
+              hover
+              onClick={() => setMode('join')}
+              className="p-8 cursor-pointer text-center text-lg font-semibold"
+            >
               Join Session
             </Card>
           </div>
         ) : (
           <Card className="p-8 max-w-md mx-auto">
 
-            <button onClick={() => setMode(null)} className="mb-4">
+            <button
+              onClick={() => setMode(null)}
+              className="mb-4 text-sm font-medium text-light-text-secondary hover:text-light-text-primary"
+            >
               ← Back
             </button>
 
@@ -98,7 +107,7 @@ export default function HomePage() {
               </div>
             )}
 
-            <div className="space-y-4">
+            <div className="space-y-5">
 
               {mode === 'create' && (
                 <>
@@ -110,15 +119,16 @@ export default function HomePage() {
                     }
                   />
 
-                  <div className="grid grid-cols-3 gap-2">
+                  {/* Voting System Buttons */}
+                  <div className="grid grid-cols-3 gap-3">
                     {(['fibonacci', 'tshirt', 'custom'] as VotingSystem[]).map((system) => (
                       <button
                         key={system}
                         onClick={() => setVotingSystem(system)}
-                        className={`p-2 rounded ${
+                        className={`py-2.5 text-sm font-semibold rounded-xl transition-all ${
                           votingSystem === system
-                            ? 'bg-light-accent text-white'
-                            : 'border border-light-border dark:border-dark-border'
+                            ? 'bg-light-accent text-white shadow-soft'
+                            : 'border border-light-border dark:border-dark-border text-light-text-primary dark:text-dark-text-primary hover:bg-light-bg-secondary dark:hover:bg-dark-card'
                         }`}
                       >
                         {system}
@@ -138,7 +148,7 @@ export default function HomePage() {
                     }
                   />
 
-                  <label className="flex items-center gap-2">
+                  <label className="flex items-center gap-2 text-sm font-medium text-light-text-primary dark:text-dark-text-primary">
                     <input
                       type="checkbox"
                       checked={isSpectator}
@@ -160,6 +170,7 @@ export default function HomePage() {
               <Button
                 onClick={mode === 'create' ? handleCreateSession : handleJoinSession}
                 disabled={loading}
+                className="w-full py-3 text-base font-semibold rounded-2xl"
               >
                 {loading
                   ? 'Please wait...'

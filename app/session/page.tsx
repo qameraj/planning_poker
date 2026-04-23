@@ -12,9 +12,9 @@ import Input from '../ui/Input';
 
 // Poker Components
 import VotingCard from '../poker/VotingCard';
-import ParticipantCard from '../poker/ParticipantCard';
-import Timer from '../poker/Timer';
-import TimerSettings from '../poker/TimerSettings';
+import ParticipantCard from './ParticipantList';
+import Timer from '../poker/timer';
+import TimerSettings from '../poker/timer-settings';
 
 // Session Components (Same folder, so use ./)
 import SessionHeader from './SessionHeader';
@@ -22,7 +22,7 @@ import SessionHeader from './SessionHeader';
 // Store & Utils
 // ✅ FIXED: Removed '/app' from lib and changed 'decks' to 'deck'
 import { useSessionStore } from '../store/useSessionStore';
-import { getDeckValues } from '@/lib/deck';
+import { getDeckValues } from '@/lib/decks';
 
 export default function SessionPage() {
   const router = useRouter();

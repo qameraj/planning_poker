@@ -3,7 +3,7 @@
 import PokerCard from './PokerCard';
 
 // ✅ FIXED: Changed 'decks' to 'deck' to match your actual filename
-import { getDeckValues } from '@/lib/deck';
+import { getDeckValues } from '@/lib/decks';
 
 // ✅ FIXED: Pointing to the root lib folder
 import { VotingSystem } from '@/lib/types';
