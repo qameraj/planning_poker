@@ -1,8 +1,9 @@
 import { create } from 'zustand';
-import { supabase } from '@/app/lib/supabaseClient';
+// ✅ FIXED: Removed '/app' because lib is now in the root
+import { supabase } from '@/lib/supabase'; 
 
-// Types
-import { Session, Participant, Vote, Round, VotingSystem } from '@/app/lib/types';
+// Also update your types if they are in that same root lib folder
+import { Session, Participant, Vote, Round, VotingSystem } from '@/lib/types';
 
 interface SessionState {
   session: Session | null;
