@@ -1,13 +1,21 @@
 import { create } from 'zustand';
-// Corrected path to match your folder structure
+import { supabase } from '@/app/lib/supabaseClient';
+
+// Types
 import { Session, Participant, Vote, Round, VotingSystem } from '@/app/lib/types';
 
 interface SessionState {
   session: Session | null;
   currentUser: Participant | null;
-  
-  // Actions
-  createSession: (name: string, userName: string, votingSystem: VotingSystem, customDeck?: string[]) => void;
+
+  // ✅ Updated to async
+  createSession: (
+    name: string,
+    userName: string,
+    votingSystem: VotingSystem,
+    customDeck?: string[]
+  ) => Promise<void>;
+
   joinSession: (sessionId: string, userName: string, isSpectator: boolean) => void;
   startRound: (storyTitle: string) => void;
   castVote: (value: string) => void;
@@ -22,34 +30,64 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   session: null,
   currentUser: null,
 
-  createSession: (name, userName, votingSystem, customDeck) => {
-    const userId = generateId();
-    const sessionId = generateId();
-    
-    const user: Participant = {
-      id: userId,
-      name: userName,
-      isSpectator: false,
-      isOnline: true,
-    };
+  // ✅ REAL SUPABASE IMPLEMENTATION
+  createSession: async (name, userName, votingSystem, customDeck) => {
+    try {
+      // 1. Insert session
+      const { data: sessionData, error: sessionError } = await supabase
+        .from('sessions')
+        .insert([
+          {
+            name,
+            voting_system: votingSystem,
+            custom_deck: customDeck || [],
+          },
+        ])
+        .select()
+        .single();
 
-    const session: Session = {
-      id: sessionId,
-      name,
-      votingSystem,
-      customDeck,
-      createdAt: Date.now(),
-      participants: [user],
-      rounds: [],
-      creatorId: userId,
-    };
+      if (sessionError) throw sessionError;
 
-    set({ session, currentUser: user });
+      // 2. Insert participant
+      const { data: participantData, error: participantError } = await supabase
+        .from('participants')
+        .insert([
+          {
+            session_id: sessionData.id,
+            name: userName,
+            is_spectator: false,
+          },
+        ])
+        .select()
+        .single();
+
+      if (participantError) throw participantError;
+
+      // 3. Update local state
+      set({
+        session: {
+          id: sessionData.id,
+          name: sessionData.name,
+          votingSystem: sessionData.voting_system,
+          customDeck: sessionData.custom_deck,
+          createdAt: new Date(sessionData.created_at).getTime(),
+          participants: [participantData],
+          rounds: [],
+          creatorId: participantData.id,
+        },
+        currentUser: participantData,
+      });
+
+    } catch (err: any) {
+      console.error('CREATE SESSION ERROR:', err.message);
+      throw err;
+    }
   },
 
+  // ⏳ KEEP MOCK FOR NOW (next step we fix this)
   joinSession: (sessionId, userName, isSpectator) => {
     const userId = generateId();
-    
+
     const user: Participant = {
       id: userId,
       name: userName,
@@ -57,23 +95,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       isOnline: true,
     };
 
-    const mockParticipants: Participant[] = [
-      { id: generateId(), name: 'Alice Johnson', isSpectator: false, isOnline: true },
-      { id: generateId(), name: 'Bob Smith', isSpectator: false, isOnline: true },
-      { id: generateId(), name: 'Carol Davis', isSpectator: true, isOnline: true },
-    ];
-
-    const session: Session = {
-      id: sessionId,
-      name: 'Sprint Planning Session',
-      votingSystem: 'fibonacci',
-      createdAt: Date.now(),
-      participants: [...mockParticipants, user],
-      rounds: [],
-      creatorId: mockParticipants[0].id,
-    };
-
-    set({ session, currentUser: user });
+    set({
+      session: {
+        id: sessionId,
+        name: 'Temp Session',
+        votingSystem: 'fibonacci',
+        createdAt: Date.now(),
+        participants: [user],
+        rounds: [],
+        creatorId: userId,
+      },
+      currentUser: user,
+    });
   },
 
   startRound: (storyTitle) => {
@@ -154,8 +187,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     set({
       session: {
         ...session,
-        // In TS, if currentRound is optional, you should use delete or set to undefined
-        currentRound: undefined, 
+        currentRound: undefined,
         rounds: [completedRound, ...session.rounds],
       },
     });

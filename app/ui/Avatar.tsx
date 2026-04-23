@@ -1,7 +1,9 @@
 'use client';
 
 import { HTMLAttributes } from 'react';
-import { cn } from '../lib/utils';
+
+// ✅ FIXED PATH
+import { cn } from '../../lib/utils';
 
 export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   name: string;
@@ -9,7 +11,13 @@ export interface AvatarProps extends HTMLAttributes<HTMLDivElement> {
   src?: string;
 }
 
-export default function Avatar({ name, size = 'md', src, className, ...props }: AvatarProps) {
+export default function Avatar({
+  name,
+  size = 'md',
+  src,
+  className,
+  ...props
+}: AvatarProps) {
   const sizes = {
     sm: 'w-8 h-8 text-xs',
     md: 'w-10 h-10 text-sm',
@@ -43,7 +51,7 @@ export default function Avatar({ name, size = 'md', src, className, ...props }: 
   return (
     <div
       className={cn(
-        'rounded-full flex items-center justify-center font-semibold text-white shadow-soft',
+        'rounded-full flex items-center justify-center font-semibold text-white shadow-soft ring-2 ring-white dark:ring-dark-bg',
         sizes[size],
         !src && getColorFromName(name),
         className
@@ -51,7 +59,11 @@ export default function Avatar({ name, size = 'md', src, className, ...props }: 
       {...props}
     >
       {src ? (
-        <img src={src} alt={name} className="w-full h-full rounded-full object-cover" />
+        <img
+          src={src}
+          alt={name}
+          className="w-full h-full rounded-full object-cover"
+        />
       ) : (
         getInitials(name)
       )}

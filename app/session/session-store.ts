@@ -1,11 +1,12 @@
 import { create } from 'zustand';
-import { Session, Participant, Vote, Round, VotingSystem } from '@/lib/types';
+
+// ✅ FIXED PATH
+import { Session, Participant, Vote, Round, VotingSystem } from '@/app/lib/types';
 
 interface SessionState {
   session: Session | null;
   currentUser: Participant | null;
-  
-  // Actions
+
   createSession: (name: string, userName: string, votingSystem: VotingSystem, customDeck?: string[]) => void;
   joinSession: (sessionId: string, userName: string, isSpectator: boolean) => void;
   startRound: (storyTitle: string, timerDuration?: number, timerAutoReveal?: boolean) => void;
@@ -17,7 +18,7 @@ interface SessionState {
   stopTimer: () => void;
 }
 
-// Mock data generator
+// Mock ID generator
 const generateId = () => Math.random().toString(36).substring(2, 11);
 
 export const useSessionStore = create<SessionState>((set, get) => ({
@@ -27,7 +28,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   createSession: (name, userName, votingSystem, customDeck) => {
     const userId = generateId();
     const sessionId = generateId();
-    
+
     const user: Participant = {
       id: userId,
       name: userName,
@@ -51,7 +52,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
   joinSession: (sessionId, userName, isSpectator) => {
     const userId = generateId();
-    
+
     const user: Participant = {
       id: userId,
       name: userName,
@@ -59,7 +60,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       isOnline: true,
     };
 
-    // Mock: Create a new session with some existing participants
     const mockParticipants: Participant[] = [
       { id: generateId(), name: 'Alice Johnson', isSpectator: false, isOnline: true },
       { id: generateId(), name: 'Bob Smith', isSpectator: false, isOnline: true },
@@ -91,7 +91,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       startedAt: Date.now(),
       timerDuration,
       timerAutoReveal,
-      timerActive: timerDuration ? true : false,
+      timerActive: !!timerDuration,
     };
 
     set({
@@ -110,20 +110,18 @@ export const useSessionStore = create<SessionState>((set, get) => ({
       (v) => v.participantId === currentUser.id
     );
 
-    let updatedVotes = [...session.currentRound.votes];
+    const updatedVotes = [...session.currentRound.votes];
+
+    const newVote: Vote = {
+      participantId: currentUser.id,
+      value,
+      timestamp: Date.now(),
+    };
 
     if (existingVoteIndex >= 0) {
-      updatedVotes[existingVoteIndex] = {
-        participantId: currentUser.id,
-        value,
-        timestamp: Date.now(),
-      };
+      updatedVotes[existingVoteIndex] = newVote;
     } else {
-      updatedVotes.push({
-        participantId: currentUser.id,
-        value,
-        timestamp: Date.now(),
-      });
+      updatedVotes.push(newVote);
     }
 
     set({

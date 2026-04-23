@@ -2,8 +2,9 @@
 
 import { HTMLAttributes, forwardRef } from 'react';
 import { motion } from 'framer-motion';
-// Change from '@/lib/utils' to '@/app/lib/utils'
-import { cn } from '../lib/utils';
+
+// ✅ FIXED PATH
+import { cn } from '../../lib/utils';
 
 export interface CardProps extends HTMLAttributes<HTMLDivElement> {
   hover?: boolean;
@@ -12,7 +13,7 @@ export interface CardProps extends HTMLAttributes<HTMLDivElement> {
 const Card = forwardRef<HTMLDivElement, CardProps>(
   ({ className, hover = false, children, ...props }, ref) => {
     const Component = hover ? motion.div : 'div';
-    
+
     return (
       <Component
         ref={ref}
@@ -22,7 +23,10 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           className
         )}
         {...(hover && {
-          whileHover: { scale: 1.02, boxShadow: '0 8px 24px rgba(0, 0, 0, 0.12)' },
+          whileHover: {
+            scale: 1.02,
+            boxShadow: '0 10px 30px rgba(0, 0, 0, 0.08)',
+          },
           whileTap: { scale: 0.98 },
         })}
         {...props}

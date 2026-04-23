@@ -21,37 +21,44 @@ export default function Modal({ isOpen, onClose, title, children }: ModalProps) 
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             onClick={onClose}
           />
 
-          {/* Modal */}
+          {/* Modal Container */}
           <motion.div
             className="fixed inset-0 flex items-center justify-center z-50 px-4"
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96, y: 20 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: 0.96, y: 20 }}
+            transition={{ duration: 0.25 }}
           >
             <div
-              className="w-full max-w-md bg-light-card dark:bg-dark-card rounded-2xl shadow-soft p-6"
+              className="w-full max-w-md bg-light-card dark:bg-dark-card border border-light-border dark:border-dark-border rounded-2xl shadow-soft p-6"
               onClick={(e) => e.stopPropagation()}
             >
               {/* Header */}
               {title && (
-                <div className="flex justify-between items-center mb-4">
+                <div className="flex justify-between items-center mb-5">
                   <h2 className="text-lg font-semibold text-light-text-primary dark:text-dark-text-primary">
                     {title}
                   </h2>
+
                   <button
                     onClick={onClose}
-                    className="text-light-text-secondary hover:text-light-text-primary dark:text-dark-text-secondary dark:hover:text-dark-text-primary"
+                    className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-light-bg dark:hover:bg-dark-bg transition"
                   >
-                    ✕
+                    <span className="text-light-text-secondary dark:text-dark-text-secondary text-lg">
+                      ✕
+                    </span>
                   </button>
                 </div>
               )}
 
               {/* Content */}
-              <div>{children}</div>
+              <div className="text-light-text-primary dark:text-dark-text-primary">
+                {children}
+              </div>
             </div>
           </motion.div>
         </>

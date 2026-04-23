@@ -4,15 +4,15 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 
-// UI Components
-import Card from '@/app/ui/Card';           
-import Button from '@/app/ui/Button';       
-import Input from '@/app/ui/Input';         
-import ThemeToggle from '@/app/ui/ThemeToggle'; 
+// ✅ FIXED IMPORTS (no @/app, no alias issues)
+import Card from './ui/Card';           
+import Button from './ui/Button';       
+import Input from './ui/Input';         
+import ThemeToggle from './ui/ThemeToggle'; 
 
-// Store & Types
-import { useSessionStore } from '@/app/store/useSessionStore';
-import { VotingSystem } from '@/app/lib/types';
+// ✅ FIXED PATHS
+import { useSessionStore } from './store/useSessionStore';
+import { VotingSystem } from '../lib/types';
 
 export default function HomePage() {
   const router = useRouter();
@@ -28,7 +28,6 @@ export default function HomePage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // ✅ CREATE SESSION (REAL DB CALL)
   const handleCreateSession = async () => {
     if (!sessionName.trim() || !userName.trim()) return;
 
@@ -46,7 +45,6 @@ export default function HomePage() {
     }
   };
 
-  // ✅ JOIN SESSION (REAL DB CALL)
   const handleJoinSession = async () => {
     if (!sessionId.trim() || !userName.trim()) return;
 
@@ -94,7 +92,6 @@ export default function HomePage() {
               ← Back
             </button>
 
-            {/* ERROR UI */}
             {error && (
               <div className="mb-4 text-red-500 text-sm">
                 {error}
@@ -108,7 +105,9 @@ export default function HomePage() {
                   <Input
                     label="Session Name"
                     value={sessionName}
-                    onChange={(e) => setSessionName(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSessionName(e.target.value)
+                    }
                   />
 
                   <div className="grid grid-cols-3 gap-2">
@@ -117,7 +116,9 @@ export default function HomePage() {
                         key={system}
                         onClick={() => setVotingSystem(system)}
                         className={`p-2 rounded ${
-                          votingSystem === system ? 'bg-green-500 text-white' : 'border'
+                          votingSystem === system
+                            ? 'bg-light-accent text-white'
+                            : 'border border-light-border dark:border-dark-border'
                         }`}
                       >
                         {system}
@@ -132,7 +133,9 @@ export default function HomePage() {
                   <Input
                     label="Session ID"
                     value={sessionId}
-                    onChange={(e) => setSessionId(e.target.value)}
+                    onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                      setSessionId(e.target.value)
+                    }
                   />
 
                   <label className="flex items-center gap-2">
@@ -149,7 +152,9 @@ export default function HomePage() {
               <Input
                 label="Your Name"
                 value={userName}
-                onChange={(e) => setUserName(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  setUserName(e.target.value)
+                }
               />
 
               <Button
