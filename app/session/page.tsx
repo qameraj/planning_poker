@@ -40,11 +40,26 @@ export default function SessionPage() {
   const [showTimerSettings, setShowTimerSettings] = useState(false);
 
   // ✅ Realtime participants
-  useEffect(() => {
-    if (!session?.id) return;
-    const unsub = listenToParticipants(session.id);
-    return () => unsub();
-  }, [session?.id]);
+  // Participants
+useEffect(() => {
+  if (!session?.id) return;
+  const unsub = listenToParticipants(session.id);
+  return () => unsub();
+}, [session?.id]);
+
+// Votes
+useEffect(() => {
+  if (!session?.currentRound?.id) return;
+  const unsub = listenToVotes(session.currentRound.id);
+  return () => unsub();
+}, [session?.currentRound?.id]);
+
+// Reveal sync
+useEffect(() => {
+  if (!session?.currentRound?.id) return;
+  const unsub = listenToRound(session.currentRound.id);
+  return () => unsub();
+}, [session?.currentRound?.id]);
 
   // ✅ Realtime votes
   useEffect(() => {
