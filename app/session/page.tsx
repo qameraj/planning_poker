@@ -12,7 +12,6 @@ import Input from '../ui/Input';
 // Poker Components
 import VotingCard from '../poker/VotingCard';
 import ParticipantCard from './ParticipantList';
-import Timer from '../poker/Timer';
 import TimerSettings from '../poker/TimerSettings';
 
 // Session Components
@@ -23,18 +22,18 @@ import { useSessionStore } from '../store/useSessionStore';
 import { getDeckValues } from '@/lib/decks';
 
 export default function SessionPage() {
-  const router = useRouter();
-
   const {
     session,
     currentUser,
-    startRound,
     castVote,
     revealVotes,
     resetRound,
     leaveSession,
     listenToParticipants,
+    listenToVotes,
   } = useSessionStore();
+
+  const router = useRouter();
 
   const [storyTitle, setStoryTitle] = useState('');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
@@ -43,12 +42,18 @@ export default function SessionPage() {
   // ✅ Realtime participants
   useEffect(() => {
     if (!session?.id) return;
-
-    const unsubscribe = listenToParticipants(session.id);
-    return () => unsubscribe();
+    const unsub = listenToParticipants(session.id);
+    return () => unsub();
   }, [session?.id]);
 
-  // ✅ Redirect if not in session
+  // ✅ Realtime votes
+  useEffect(() => {
+    if (!session?.currentRound?.id) return;
+    const unsub = listenToVotes(session.currentRound.id);
+    return () => unsub();
+  }, [session?.currentRound?.id]);
+
+  // ✅ Redirect if session missing
   useEffect(() => {
     if (!session || !currentUser) {
       router.push('/');
@@ -66,15 +71,7 @@ export default function SessionPage() {
 
   const votedCount = currentRound?.votes.length || 0;
   const totalVoters = activeParticipants.length;
-
   const progress = totalVoters === 0 ? 0 : (votedCount / totalVoters) * 100;
-
-  const handleStartRound = (timerDuration?: number, timerAutoReveal?: boolean) => {
-    if (!storyTitle.trim()) return;
-    startRound(storyTitle, timerDuration, timerAutoReveal);
-    setStoryTitle('');
-    setSelectedCard(null);
-  };
 
   const handleVote = (value: string) => {
     if (currentUser.isSpectator || isRevealed) return;
@@ -86,26 +83,6 @@ export default function SessionPage() {
     leaveSession();
     router.push('/');
   };
-
-  const stats = (() => {
-    if (!currentRound || !isRevealed) return null;
-
-    const nums = currentRound.votes
-      .map(v => parseFloat(v.value))
-      .filter(v => !isNaN(v));
-
-    if (!nums.length) return null;
-
-    const avg = nums.reduce((a, b) => a + b, 0) / nums.length;
-    const sorted = [...nums].sort((a, b) => a - b);
-
-    const median =
-      sorted.length % 2 === 0
-        ? (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-        : sorted[Math.floor(sorted.length / 2)];
-
-    return { average: avg.toFixed(1), median };
-  })();
 
   return (
     <div className="min-h-screen bg-light-bg dark:bg-dark-bg">
@@ -123,79 +100,48 @@ export default function SessionPage() {
         {/* LEFT */}
         <div className="lg:col-span-2 space-y-6">
 
-          {!currentRound ? (
-            <Card className="p-6">
-              <Input
-                placeholder="Story title"
-                value={storyTitle}
-                onChange={(e) => setStoryTitle(e.target.value)}
-              />
+          <Card className="p-6">
 
-              <div className="flex gap-2 mt-3">
-                <Button onClick={() => handleStartRound()} disabled={!storyTitle}>
-                  Start
-                </Button>
+            <h2 className="text-xl font-bold mb-2">
+              {currentRound?.storyTitle || 'Story'}
+            </h2>
 
-                <Button
-                  variant="secondary"
-                  onClick={() => setShowTimerSettings(true)}
-                  disabled={!storyTitle}
-                >
-                  With Timer
-                </Button>
+            <p className="text-sm mb-4">
+              {votedCount} / {totalVoters} voted
+            </p>
+
+            {!isRevealed && (
+              <div className="h-2 bg-gray-200 rounded mb-4">
+                <motion.div
+                  className="h-full bg-blue-500"
+                  animate={{ width: `${progress}%` }}
+                />
               </div>
-            </Card>
-          ) : (
-            <Card className="p-6">
+            )}
 
-              <h2 className="text-xl font-bold mb-2">
-                {currentRound.storyTitle}
-              </h2>
-
-              <p className="text-sm mb-4">
-                {votedCount} / {totalVoters} voted
-              </p>
-
-              {!isRevealed && (
-                <div className="h-2 bg-gray-200 rounded mb-4">
-                  <motion.div
-                    className="h-full bg-blue-500"
-                    animate={{ width: `${progress}%` }}
+            {!currentUser.isSpectator && (
+              <div className="flex flex-wrap gap-2">
+                {deckValues.map(v => (
+                  <VotingCard
+                    key={v}
+                    value={v}
+                    isSelected={selectedCard === v}
+                    isRevealed={isRevealed}
+                    onClick={() => handleVote(v)}
                   />
-                </div>
-              )}
-
-              {!currentUser.isSpectator && (
-                <div className="flex flex-wrap gap-2">
-                  {deckValues.map(v => (
-                    <VotingCard
-                      key={v}
-                      value={v}
-                      isSelected={selectedCard === v}
-                      isRevealed={isRevealed}
-                      onClick={() => handleVote(v)}
-                    />
-                  ))}
-                </div>
-              )}
-
-              <div className="mt-4 flex gap-2">
-                {!isRevealed && votedCount > 0 && (
-                  <Button onClick={revealVotes}>Reveal</Button>
-                )}
-                {isRevealed && (
-                  <Button onClick={resetRound}>New Round</Button>
-                )}
+                ))}
               </div>
+            )}
 
-              {isRevealed && stats && (
-                <div className="mt-6 text-center">
-                  <p>Average: {stats.average}</p>
-                  <p>Median: {stats.median}</p>
-                </div>
+            <div className="mt-4 flex gap-2">
+              {!isRevealed && votedCount > 0 && (
+                <Button onClick={revealVotes}>Reveal</Button>
               )}
-            </Card>
-          )}
+              {isRevealed && (
+                <Button onClick={resetRound}>New Round</Button>
+              )}
+            </div>
+          </Card>
         </div>
 
         {/* RIGHT */}
@@ -236,10 +182,7 @@ export default function SessionPage() {
       <TimerSettings
         isOpen={showTimerSettings}
         onClose={() => setShowTimerSettings(false)}
-        onStart={(d, auto) => {
-          handleStartRound(d, auto);
-          setShowTimerSettings(false);
-        }}
+        onStart={() => {}}
       />
     </div>
   );
