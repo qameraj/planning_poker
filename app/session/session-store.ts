@@ -28,6 +28,7 @@ interface SessionState {
   leaveSession: () => void;
   startTimer: () => void;
   stopTimer: () => void;
+  listenToParticipants: (sessionId: string) => () => void;
 }
 
 const generateId = () => Math.random().toString(36).substring(2, 11);
@@ -283,5 +284,45 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         },
       },
     });
+  },
+  listenToParticipants: (sessionId: string) => {
+    const channel = supabase
+      .channel(`participants-${sessionId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'participants',
+          filter: `session_id=eq.${sessionId}`,
+        },
+        async () => {
+          // 🔁 Refetch participants
+          const { data } = await supabase
+            .from('participants')
+            .select('*')
+            .eq('session_id', sessionId);
+  
+          if (!data) return;
+  
+          const participants = data.map((p) => ({
+            id: p.id,
+            name: p.name,
+            isSpectator: p.is_spectator,
+            isOnline: p.is_online,
+          }));
+  
+          set((state) => ({
+            session: state.session
+              ? { ...state.session, participants }
+              : null,
+          }));
+        }
+      )
+      .subscribe();
+  
+    return () => {
+      supabase.removeChannel(channel);
+    };
   },
 }));
