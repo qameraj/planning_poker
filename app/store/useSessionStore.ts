@@ -18,7 +18,7 @@ interface SessionState {
   joinSession: (sessionId: string, userName: string, isSpectator: boolean) => void;
   startRound: (storyTitle: string) => void;
   castVote: (value: string) => void;
-  revealVotes: () => void;
+  revealVotes: () => Promise<void>;
   resetRound: () => void;
   leaveSession: () => void;
 }
@@ -170,24 +170,30 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     const { session } = get();
     if (!session?.currentRound) return;
   
-    await supabase
-      .from('rounds')
-      .update({ is_revealed: true })
-      .eq('id', session.currentRound.id);
-  },
-
-    set({
-      session: {
-        ...session,
-        currentRound: {
-          ...session.currentRound,
-          isRevealed: true,
-          revealedAt: Date.now(),
+    try {
+      const { error } = await supabase
+        .from('rounds')
+        .update({ is_revealed: true })
+        .eq('id', session.currentRound.id);
+  
+      if (error) throw error;
+  
+      // ✅ Update local state AFTER DB success
+      set({
+        session: {
+          ...session,
+          currentRound: {
+            ...session.currentRound,
+            isRevealed: true,
+            revealedAt: Date.now(),
+          },
         },
-      },
-    });
+      });
+  
+    } catch (err: any) {
+      console.error('REVEAL VOTES ERROR:', err.message);
+    }
   },
-
   resetRound: () => {
     const { session } = get();
     if (!session || !session.currentRound) return;
