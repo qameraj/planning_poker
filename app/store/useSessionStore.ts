@@ -1,15 +1,13 @@
-import { create } from 'zustand';
-// ✅ FIXED: Removed '/app' because lib is now in the root
-import { supabase } from '@/lib/supabase'; 
+'use client';
 
-// Also update your types if they are in that same root lib folder
+import { create } from 'zustand';
+import { supabase } from '@/lib/supabase';
 import { Session, Participant, Vote, Round, VotingSystem } from '@/lib/types';
 
 interface SessionState {
   session: Session | null;
   currentUser: Participant | null;
 
-  // ✅ Updated to async
   createSession: (
     name: string,
     userName: string,
@@ -31,17 +29,16 @@ export const useSessionStore = create<SessionState>((set, get) => ({
   session: null,
   currentUser: null,
 
-  // ✅ REAL SUPABASE IMPLEMENTATION
+  // ✅ SUPABASE CREATE SESSION
   createSession: async (name, userName, votingSystem, customDeck) => {
     try {
-      // 1. Insert session
       const { data: sessionData, error: sessionError } = await supabase
         .from('sessions')
         .insert([
           {
             name,
             voting_system: votingSystem,
-            custom_deck: customDeck || [],
+            custom_deck: customDeck || null,
           },
         ])
         .select()
@@ -49,7 +46,6 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
       if (sessionError) throw sessionError;
 
-      // 2. Insert participant
       const { data: participantData, error: participantError } = await supabase
         .from('participants')
         .insert([
@@ -57,6 +53,7 @@ export const useSessionStore = create<SessionState>((set, get) => ({
             session_id: sessionData.id,
             name: userName,
             is_spectator: false,
+            is_online: true,
           },
         ])
         .select()
@@ -64,28 +61,34 @@ export const useSessionStore = create<SessionState>((set, get) => ({
 
       if (participantError) throw participantError;
 
-      // 3. Update local state
+      const user: Participant = {
+        id: participantData.id,
+        name: participantData.name,
+        isSpectator: participantData.is_spectator,
+        isOnline: participantData.is_online,
+      };
+
       set({
         session: {
           id: sessionData.id,
           name: sessionData.name,
           votingSystem: sessionData.voting_system,
-          customDeck: sessionData.custom_deck,
+          customDeck: sessionData.custom_deck || undefined,
           createdAt: new Date(sessionData.created_at).getTime(),
-          participants: [participantData],
+          participants: [user],
           rounds: [],
-          creatorId: participantData.id,
+          creatorId: user.id,
         },
-        currentUser: participantData,
+        currentUser: user,
       });
 
     } catch (err: any) {
       console.error('CREATE SESSION ERROR:', err.message);
-      throw err;
+      alert(err.message);
     }
   },
 
-  // ⏳ KEEP MOCK FOR NOW (next step we fix this)
+  // ⏳ MOCK JOIN (we fix later)
   joinSession: (sessionId, userName, isSpectator) => {
     const userId = generateId();
 
