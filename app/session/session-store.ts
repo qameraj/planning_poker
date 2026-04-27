@@ -21,271 +21,154 @@ interface SessionState {
     isSpectator: boolean
   ) => Promise<void>;
 
-  startRound: (storyTitle: string, timerDuration?: number, timerAutoReveal?: boolean) => void;
-  castVote: (value: string) => void;
-  revealVotes: () => void;
-  resetRound: () => void;
-  leaveSession: () => void;
-  startTimer: () => void;
-  stopTimer: () => void;
-  listenToParticipants: (sessionId: string) => () => void;
-}
+  castVote: (value: string) => Promise<void>;
 
-const generateId = () => Math.random().toString(36).substring(2, 11);
+  listenToParticipants: (sessionId: string) => () => void;
+  listenToVotes: (roundId: string) => () => void;
+
+  leaveSession: () => void;
+}
 
 export const useSessionStore = create<SessionState>((set, get) => ({
   session: null,
   currentUser: null,
 
-  // ✅ CREATE SESSION (REAL DB)
+  // ✅ CREATE SESSION
   createSession: async (name, userName, votingSystem, customDeck) => {
-    try {
-      const { data: sessionData, error: sessionError } = await supabase
-        .from('sessions')
-        .insert([
-          {
-            name,
-            voting_system: votingSystem,
-            custom_deck: customDeck || null,
-          },
-        ])
-        .select()
-        .single();
-
-      if (sessionError) throw sessionError;
-
-      const { data: participantData, error: participantError } = await supabase
-        .from('participants')
-        .insert([
-          {
-            session_id: sessionData.id,
-            name: userName,
-            is_spectator: false,
-            is_online: true,
-          },
-        ])
-        .select()
-        .single();
-
-      if (participantError) throw participantError;
-
-      const user: Participant = {
-        id: participantData.id,
-        name: participantData.name,
-        isSpectator: participantData.is_spectator,
-        isOnline: participantData.is_online,
-      };
-
-      set({
-        session: {
-          id: sessionData.id,
-          name: sessionData.name,
-          votingSystem: sessionData.voting_system,
-          customDeck: sessionData.custom_deck || undefined,
-          createdAt: new Date(sessionData.created_at).getTime(),
-          participants: [user],
-          rounds: [],
-          creatorId: user.id,
+    const { data: sessionData } = await supabase
+      .from('sessions')
+      .insert([
+        {
+          name,
+          voting_system: votingSystem,
+          custom_deck: customDeck || null,
         },
-        currentUser: user,
-      });
+      ])
+      .select()
+      .single();
 
-    } catch (err: any) {
-      console.error('CREATE SESSION ERROR:', err.message);
-      alert(err.message);
-    }
-  },
-
-  // ✅ JOIN SESSION (REAL DB)
-  joinSession: async (sessionId, userName, isSpectator) => {
-    try {
-      const { data: sessionData, error: sessionError } = await supabase
-        .from('sessions')
-        .select('*')
-        .eq('id', sessionId)
-        .single();
-
-      if (sessionError || !sessionData) {
-        throw new Error('Session not found');
-      }
-
-      const { data: participantData, error: participantError } = await supabase
-        .from('participants')
-        .insert([
-          {
-            session_id: sessionId,
-            name: userName,
-            is_spectator: isSpectator,
-            is_online: true,
-          },
-        ])
-        .select()
-        .single();
-
-      if (participantError) throw participantError;
-
-      const user: Participant = {
-        id: participantData.id,
-        name: participantData.name,
-        isSpectator: participantData.is_spectator,
-        isOnline: participantData.is_online,
-      };
-
-      const { data: participantsData } = await supabase
-        .from('participants')
-        .select('*')
-        .eq('session_id', sessionId);
-
-      const participants: Participant[] =
-        participantsData?.map((p) => ({
-          id: p.id,
-          name: p.name,
-          isSpectator: p.is_spectator,
-          isOnline: p.is_online,
-        })) || [];
-
-      set({
-        session: {
-          id: sessionData.id,
-          name: sessionData.name,
-          votingSystem: sessionData.voting_system,
-          customDeck: sessionData.custom_deck || undefined,
-          createdAt: new Date(sessionData.created_at).getTime(),
-          participants,
-          rounds: [],
-          creatorId: participants[0]?.id,
+    const { data: participantData } = await supabase
+      .from('participants')
+      .insert([
+        {
+          session_id: sessionData.id,
+          name: userName,
+          is_spectator: false,
+          is_online: true,
         },
-        currentUser: user,
-      });
+      ])
+      .select()
+      .single();
 
-    } catch (err: any) {
-      console.error('JOIN SESSION ERROR:', err.message);
-      alert(err.message);
-    }
-  },
-
-  // 🔁 KEEP EXISTING LOGIC (NO CHANGE)
-  startRound: (storyTitle, timerDuration, timerAutoReveal) => {
-    const { session } = get();
-    if (!session) return;
-
-    const round: Round = {
-      id: generateId(),
-      storyTitle,
-      votes: [],
-      isRevealed: false,
-      startedAt: Date.now(),
-      timerDuration,
-      timerAutoReveal,
-      timerActive: !!timerDuration,
+    const user: Participant = {
+      id: participantData.id,
+      name: participantData.name,
+      isSpectator: participantData.is_spectator,
+      isOnline: participantData.is_online,
     };
 
     set({
       session: {
-        ...session,
-        currentRound: round,
+        id: sessionData.id,
+        name: sessionData.name,
+        votingSystem: sessionData.voting_system,
+        customDeck: sessionData.custom_deck || undefined,
+        createdAt: new Date(sessionData.created_at).getTime(),
+        participants: [user],
+        rounds: [],
+        creatorId: user.id,
+        currentRound: {
+          id: crypto.randomUUID(),
+          storyTitle: 'Story',
+          votes: [],
+          isRevealed: false,
+          startedAt: Date.now(),
+        },
       },
+      currentUser: user,
     });
   },
 
-  castVote: (value) => {
+  // ✅ JOIN SESSION
+  joinSession: async (sessionId, userName, isSpectator) => {
+    const { data: sessionData } = await supabase
+      .from('sessions')
+      .select('*')
+      .eq('id', sessionId)
+      .single();
+
+    const { data: participantData } = await supabase
+      .from('participants')
+      .insert([
+        {
+          session_id: sessionId,
+          name: userName,
+          is_spectator: isSpectator,
+          is_online: true,
+        },
+      ])
+      .select()
+      .single();
+
+    const { data: participantsData } = await supabase
+      .from('participants')
+      .select('*')
+      .eq('session_id', sessionId);
+
+    const participants: Participant[] =
+      participantsData?.map((p) => ({
+        id: p.id,
+        name: p.name,
+        isSpectator: p.is_spectator,
+        isOnline: p.is_online,
+      })) || [];
+
+    const user: Participant = {
+      id: participantData.id,
+      name: participantData.name,
+      isSpectator: participantData.is_spectator,
+      isOnline: participantData.is_online,
+    };
+
+    set({
+      session: {
+        id: sessionData.id,
+        name: sessionData.name,
+        votingSystem: sessionData.voting_system,
+        customDeck: sessionData.custom_deck || undefined,
+        createdAt: new Date(sessionData.created_at).getTime(),
+        participants,
+        rounds: [],
+        creatorId: participants[0]?.id,
+        currentRound: {
+          id: crypto.randomUUID(),
+          storyTitle: 'Story',
+          votes: [],
+          isRevealed: false,
+          startedAt: Date.now(),
+        },
+      },
+      currentUser: user,
+    });
+  },
+
+  // ✅ REALTIME VOTE (UPSERT)
+  castVote: async (value) => {
     const { session, currentUser } = get();
     if (!session || !currentUser || !session.currentRound) return;
 
-    const existingVoteIndex = session.currentRound.votes.findIndex(
-      (v) => v.participantId === currentUser.id
+    await supabase.from('votes').upsert(
+      {
+        round_id: session.currentRound.id,
+        participant_id: currentUser.id,
+        value,
+      },
+      { onConflict: 'round_id,participant_id' }
     );
-
-    const updatedVotes = [...session.currentRound.votes];
-
-    const newVote: Vote = {
-      participantId: currentUser.id,
-      value,
-      timestamp: Date.now(),
-    };
-
-    if (existingVoteIndex >= 0) {
-      updatedVotes[existingVoteIndex] = newVote;
-    } else {
-      updatedVotes.push(newVote);
-    }
-
-    set({
-      session: {
-        ...session,
-        currentRound: {
-          ...session.currentRound,
-          votes: updatedVotes,
-        },
-      },
-    });
   },
 
-  revealVotes: () => {
-    const { session } = get();
-    if (!session || !session.currentRound) return;
-
-    set({
-      session: {
-        ...session,
-        currentRound: {
-          ...session.currentRound,
-          isRevealed: true,
-          revealedAt: Date.now(),
-        },
-      },
-    });
-  },
-
-  resetRound: () => {
-    const { session } = get();
-    if (!session || !session.currentRound) return;
-
-    const completedRound = { ...session.currentRound };
-
-    set({
-      session: {
-        ...session,
-        currentRound: undefined,
-        rounds: [completedRound, ...session.rounds],
-      },
-    });
-  },
-
-  leaveSession: () => {
-    set({ session: null, currentUser: null });
-  },
-
-  startTimer: () => {
-    const { session } = get();
-    if (!session || !session.currentRound) return;
-
-    set({
-      session: {
-        ...session,
-        currentRound: {
-          ...session.currentRound,
-          timerActive: true,
-        },
-      },
-    });
-  },
-
-  stopTimer: () => {
-    const { session } = get();
-    if (!session || !session.currentRound) return;
-
-    set({
-      session: {
-        ...session,
-        currentRound: {
-          ...session.currentRound,
-          timerActive: false,
-        },
-      },
-    });
-  },
-  listenToParticipants: (sessionId: string) => {
+  // ✅ REALTIME PARTICIPANTS
+  listenToParticipants: (sessionId) => {
     const channel = supabase
       .channel(`participants-${sessionId}`)
       .on(
@@ -297,21 +180,20 @@ export const useSessionStore = create<SessionState>((set, get) => ({
           filter: `session_id=eq.${sessionId}`,
         },
         async () => {
-          // 🔁 Refetch participants
           const { data } = await supabase
             .from('participants')
             .select('*')
             .eq('session_id', sessionId);
-  
+
           if (!data) return;
-  
+
           const participants = data.map((p) => ({
             id: p.id,
             name: p.name,
             isSpectator: p.is_spectator,
             isOnline: p.is_online,
           }));
-  
+
           set((state) => ({
             session: state.session
               ? { ...state.session, participants }
@@ -320,9 +202,57 @@ export const useSessionStore = create<SessionState>((set, get) => ({
         }
       )
       .subscribe();
-  
-    return () => {
-      supabase.removeChannel(channel);
-    };
+
+    return () => supabase.removeChannel(channel);
+  },
+
+  // ✅ REALTIME VOTES
+  listenToVotes: (roundId) => {
+    const channel = supabase
+      .channel(`votes-${roundId}`)
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'votes',
+          filter: `round_id=eq.${roundId}`,
+        },
+        async () => {
+          const { data } = await supabase
+            .from('votes')
+            .select('*')
+            .eq('round_id', roundId);
+
+          if (!data) return;
+
+          const votes: Vote[] = data.map((v) => ({
+            participantId: v.participant_id,
+            value: v.value,
+            timestamp: new Date(v.created_at).getTime(),
+          }));
+
+          set((state) => {
+            if (!state.session || !state.session.currentRound) return state;
+
+            return {
+              session: {
+                ...state.session,
+                currentRound: {
+                  ...state.session.currentRound,
+                  votes,
+                },
+              },
+            };
+          });
+        }
+      )
+      .subscribe();
+
+    return () => supabase.removeChannel(channel);
+  },
+
+  leaveSession: () => {
+    set({ session: null, currentUser: null });
   },
 }));

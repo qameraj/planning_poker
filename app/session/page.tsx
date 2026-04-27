@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion, AnimatePresence } from 'framer-motion';
+import { motion } from 'framer-motion';
 
-// ✅ FIXED: Using relative paths (going up from 'session' to 'app')
 // UI Components
 import Card from '../ui/Card';
 import Button from '../ui/Button';
@@ -13,14 +12,13 @@ import Input from '../ui/Input';
 // Poker Components
 import VotingCard from '../poker/VotingCard';
 import ParticipantCard from './ParticipantList';
-import Timer from '../poker/timer';
-import TimerSettings from '../poker/timer-settings';
+import Timer from '../poker/Timer';
+import TimerSettings from '../poker/TimerSettings';
 
-// Session Components (Same folder, so use ./)
+// Session Components
 import SessionHeader from './SessionHeader';
 
 // Store & Utils
-// ✅ FIXED: Removed '/app' from lib and changed 'decks' to 'deck'
 import { useSessionStore } from '../store/useSessionStore';
 import { getDeckValues } from '@/lib/decks';
 
@@ -35,12 +33,22 @@ export default function SessionPage() {
     revealVotes,
     resetRound,
     leaveSession,
+    listenToParticipants,
   } = useSessionStore();
 
   const [storyTitle, setStoryTitle] = useState('');
   const [selectedCard, setSelectedCard] = useState<string | null>(null);
   const [showTimerSettings, setShowTimerSettings] = useState(false);
 
+  // ✅ Realtime participants
+  useEffect(() => {
+    if (!session?.id) return;
+
+    const unsubscribe = listenToParticipants(session.id);
+    return () => unsubscribe();
+  }, [session?.id]);
+
+  // ✅ Redirect if not in session
   useEffect(() => {
     if (!session || !currentUser) {
       router.push('/');
@@ -51,7 +59,6 @@ export default function SessionPage() {
 
   const deckValues = getDeckValues(session.votingSystem, session.customDeck);
   const currentRound = session.currentRound;
-
   const isRevealed = currentRound?.isRevealed || false;
 
   const activeParticipants = session.participants.filter(p => !p.isSpectator);
@@ -60,7 +67,6 @@ export default function SessionPage() {
   const votedCount = currentRound?.votes.length || 0;
   const totalVoters = activeParticipants.length;
 
-  // ✅ SAFE PROGRESS (no divide by zero)
   const progress = totalVoters === 0 ? 0 : (votedCount / totalVoters) * 100;
 
   const handleStartRound = (timerDuration?: number, timerAutoReveal?: boolean) => {
@@ -150,7 +156,6 @@ export default function SessionPage() {
                 {votedCount} / {totalVoters} voted
               </p>
 
-              {/* Progress */}
               {!isRevealed && (
                 <div className="h-2 bg-gray-200 rounded mb-4">
                   <motion.div
@@ -160,7 +165,6 @@ export default function SessionPage() {
                 </div>
               )}
 
-              {/* Cards */}
               {!currentUser.isSpectator && (
                 <div className="flex flex-wrap gap-2">
                   {deckValues.map(v => (
@@ -184,7 +188,6 @@ export default function SessionPage() {
                 )}
               </div>
 
-              {/* Results */}
               {isRevealed && stats && (
                 <div className="mt-6 text-center">
                   <p>Average: {stats.average}</p>
@@ -199,7 +202,7 @@ export default function SessionPage() {
         <div className="space-y-4">
 
           <Card className="p-4">
-            <h3 className="mb-3">Participants</h3>
+            <h3 className="mb-3 font-semibold">Participants</h3>
 
             {activeParticipants.map(p => {
               const vote = currentRound?.votes.find(v => v.participantId === p.id);
@@ -216,7 +219,7 @@ export default function SessionPage() {
 
           {spectators.length > 0 && (
             <Card className="p-4">
-              <h3 className="mb-3">Spectators</h3>
+              <h3 className="mb-3 font-semibold">Spectators</h3>
 
               {spectators.map(p => (
                 <ParticipantCard
