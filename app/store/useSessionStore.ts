@@ -166,9 +166,15 @@ export const useSessionStore = create<SessionState>((set, get) => ({
     });
   },
 
-  revealVotes: () => {
+  revealVotes: async () => {
     const { session } = get();
-    if (!session || !session.currentRound) return;
+    if (!session?.currentRound) return;
+  
+    await supabase
+      .from('rounds')
+      .update({ is_revealed: true })
+      .eq('id', session.currentRound.id);
+  },
 
     set({
       session: {
