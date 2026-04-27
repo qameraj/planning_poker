@@ -12,7 +12,7 @@ import Input from '../ui/Input';
 // Poker Components
 import VotingCard from '../poker/VotingCard';
 import ParticipantCard from './ParticipantList';
-import TimerSettings from '../poker/TimerSettings';
+import TimerSettings from '../poker/timer-settings';
 
 // Session Components
 import SessionHeader from './SessionHeader';
